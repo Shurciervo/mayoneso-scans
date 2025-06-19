@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>One Piece Reader</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      color: white;
+      font-family: sans-serif;
+    }
+    .page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .manga-img {
+      max-width: 100%;
+      height: auto;
+      margin: 10px 0;
+    }
+    audio {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <audio id="music" autoplay></audio>
+  <div class="page" id="mangaContainer"></div>
+
+  <script src="reader.js"></script>
+</body>
+</html>
+
