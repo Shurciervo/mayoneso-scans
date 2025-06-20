@@ -1,25 +1,42 @@
 const body = document.body;
 const chapterFolder = body.getAttribute('data-chapter');
-const totalImages = parseInt(body.getAttribute('data-total-images'));
+const fanartFolder = body.getAttribute('data-fanart-folder');
+const infoFolder = body.getAttribute('data-info-folder');
+
+const totalFanarts = parseInt(body.getAttribute('data-total-fanart'));
+const totalPages = parseInt(body.getAttribute('data-total-pages'));
+const totalInfo = parseInt(body.getAttribute('data-total-info'));
+
 const musicTracks = JSON.parse(body.getAttribute('data-tracks'));
 
 const container = document.getElementById('mangaContainer');
 const audio = document.getElementById('music');
 
-for (let i = 1; i <= totalImages; i++) {
-  const img = document.createElement('img');
-  const imgNum = String(i).padStart(3, '0');
-  img.src = `${chapterFolder}/${imgNum}.jpg`;
-  img.className = 'manga-img';
-  container.appendChild(img);
+function loadImages(folder, count, cssClass) {
+  for (let i = 1; i <= count; i++) {
+    const img = document.createElement('img');
+    const imgNum = String(i).padStart(3, '0');
+    img.src = `${folder}/${imgNum}.png`;
+    img.className = cssClass;
+    container.appendChild(img);
+  }
 }
+
+// Primero fanarts
+loadImages(fanartFolder, totalFanarts, 'fanart-img');
+
+// Luego páginas del capítulo
+loadImages(chapterFolder, totalPages, 'chapter-img');
+
+// Finalmente info extra del capítulo
+loadImages(infoFolder, totalInfo, 'info-img');
 
 let audioStarted = false;
 window.addEventListener('scroll', () => {
 
   const scrollY = window.scrollY;
   const windowHeight = window.innerHeight;
-  const imgs = document.querySelectorAll('.manga-img');
+  const imgs = document.querySelectorAll('.chapter-img');
 
   for (let i = musicTracks.length - 1; i >= 0; i--) {
     const triggerImg = imgs[musicTracks[i].startAt];
