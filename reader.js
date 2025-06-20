@@ -44,7 +44,11 @@ window.addEventListener('scroll', () => {
       if (!audio.src.includes(musicTracks[i].track)) {
         audio.src = musicTracks[i].track;
         audio.volume = 0.1;
-        audio.loop = true;
+        if (i === 0) {
+          audio.loop = false;
+        } else {
+          audio.loop = true;
+        }
         audio.play();
       }
       break;
