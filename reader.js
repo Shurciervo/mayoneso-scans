@@ -17,7 +17,7 @@ function loadImages(folder, count, cssClass) {
     const img = document.createElement('img');
     const imgNum = String(i).padStart(3, '0');
     img.src = `${folder}/${imgNum}.png`;
-    img.className = cssClass;
+    img.className = `manga-img ${cssClass}`;
     container.appendChild(img);
   }
 }
