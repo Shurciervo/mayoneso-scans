@@ -1,35 +1,64 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>One Piece Reader</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🐀 Mayoneso Scans</title>
   <style>
     body {
       margin: 0;
-      background-color: black;
-      color: white;
       font-family: sans-serif;
-    }
-    .page {
+      background-image: url('background.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      color: white;
+      height: 100vh;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
     }
-    .manga-img {
-      max-width: 100%;
-      height: auto;
-      margin: 10px 0;
+
+    .content-box {
+      background: rgba(0, 0, 0, 0.7); /* fondo semitransparente para resaltar */
+      padding: 40px 60px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     }
-    audio {
-      display: none;
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 4px black;
+    }
+
+    .chapter-link {
+      display: inline-block;
+      margin: 10px;
+      padding: 15px 30px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid #fff;
+      border-radius: 10px;
+      text-decoration: none;
+      color: white;
+      font-size: 1.2em;
+      transition: background 0.3s;
+    }
+
+    .chapter-link:hover {
+      background: rgba(255, 255, 255, 0.3);
     }
   </style>
 </head>
 <body>
-  <audio id="music" autoplay></audio>
-  <div class="page" id="mangaContainer"></div>
-
-  <script src="reader.js"></script>
+  <div class="content-box">
+    <h1>🐀 Mayoneso Scans 🐀</h1>
+    <h1>ONE PIECE</h1>
+    <a href="chapter1150.html" class="chapter-link">Capítulo 1150</a>
+    <!-- <a href="chapter2.html" class="chapter-link">Capítulo 2</a> -->
+  </div>
 </body>
 </html>
 
