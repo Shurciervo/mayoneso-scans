@@ -148,52 +148,97 @@ window.addEventListener('scroll', () => {
   }
 });
 
-// ——— NUEVO: Función para crear botones Anterior / Siguiente ———
-function createChapterNavigation() {
-  // Extraer número del capítulo del data-chapter: "chapter1130" -> 1130
-  const chapterStr = chapterFolder; // ej: "chapter1130"
-  const chapterNum = parseInt(chapterStr.replace('chapter', ''), 10);
+// ——— NUEVO: Función para crear botones Anterior / Siguiente más bonitos ———
+  function createChapterNavigation() {
+    const chapterStr = chapterFolder; // ej: "chapter1130"
+    const chapterNum = parseInt(chapterStr.replace('chapter', ''), 10);
+    if (isNaN(chapterNum)) return;
 
-  if (isNaN(chapterNum)) return; // no es un número válido, no crear botones
+    const prevChapter = chapterNum - 1;
+    const nextChapter = chapterNum + 1;
 
-  const prevChapter = chapterNum - 1;
-  const nextChapter = chapterNum + 1;
+    const navDiv = document.createElement('div');
+    navDiv.id = 'chapter-navigation';
+    navDiv.style.display = 'flex';
+    navDiv.style.justifyContent = 'center';
+    navDiv.style.gap = '40px';
+    navDiv.style.margin = '30px 0';
+    navDiv.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
 
-  // Crear contenedor
-  const navDiv = document.createElement('div');
-  navDiv.id = 'chapter-navigation';
-  navDiv.style.textAlign = 'center';
-  navDiv.style.margin = '30px 0';
+    function createButton(href, arrow, label, chapterNumber, isPrev) {
+  const btn = document.createElement('a');
+  btn.href = href;
+  btn.style.textDecoration = 'none';
+  btn.style.color = '#f0f0f0';
+  btn.style.display = 'flex';
+  btn.style.flexDirection = 'column';
+  btn.style.alignItems = 'center';
+  btn.style.padding = '12px 24px';
+  btn.style.backgroundColor = '#1e1e1e';
+  btn.style.borderRadius = '10px';
+  btn.style.boxShadow = '0 2px 6px rgba(0,0,0,0.5)';
+  btn.style.transition = 'background-color 0.3s, color 0.3s';
+  btn.style.width = '90px';
+  btn.style.cursor = 'pointer';
 
-  // Crear botón anterior
-  const prevLink = document.createElement('a');
-  prevLink.href = `chapter${prevChapter}.html`;
-  prevLink.textContent = '← Anterior';
-  prevLink.style.marginRight = '20px';
-  prevLink.style.padding = '10px 20px';
-  prevLink.style.backgroundColor = '#222';
-  prevLink.style.color = 'white';
-  prevLink.style.textDecoration = 'none';
-  prevLink.style.borderRadius = '5px';
+  btn.addEventListener('mouseenter', () => {
+    btn.style.backgroundColor = '#333';
+    btn.style.color = '#fff';
+  });
+  btn.addEventListener('mouseleave', () => {
+    btn.style.backgroundColor = '#1e1e1e';
+    btn.style.color = '#f0f0f0';
+  });
 
-  // Crear botón siguiente
-  const nextLink = document.createElement('a');
-  nextLink.href = `chapter${nextChapter}.html`;
-  nextLink.textContent = 'Siguiente →';
-  nextLink.style.padding = '10px 20px';
-  nextLink.style.backgroundColor = '#222';
-  nextLink.style.color = 'white';
-  nextLink.style.textDecoration = 'none';
-  nextLink.style.borderRadius = '5px';
+  // Contenedor horizontal para flecha + texto
+  const textWithArrow = document.createElement('div');
+  textWithArrow.style.display = 'flex';
+  textWithArrow.style.alignItems = 'center';
+  textWithArrow.style.gap = '6px'; // espacio entre flecha y texto
+  textWithArrow.style.fontWeight = '600';
+  textWithArrow.style.fontSize = '16px';
 
-  navDiv.appendChild(prevLink);
-  navDiv.appendChild(nextLink);
+  const arrowSpan = document.createElement('span');
+  arrowSpan.textContent = arrow;
+  arrowSpan.style.fontSize = '24px';
+  arrowSpan.style.fontWeight = '700';
 
-  // Insertar al final del contenedor manga
+  const labelSpan = document.createElement('span');
+  labelSpan.textContent = label;
+
+  // Orden según si es previo o siguiente
+  if (isPrev) {
+    textWithArrow.appendChild(arrowSpan);
+    textWithArrow.appendChild(labelSpan);
+  } else {
+    textWithArrow.appendChild(labelSpan);
+    textWithArrow.appendChild(arrowSpan);
+  }
+
+  const chapterSpan = document.createElement('span');
+  chapterSpan.textContent = `Capítulo ${chapterNumber}`;
+  chapterSpan.style.fontSize = '12px';
+  chapterSpan.style.color = '#aaa';
+  chapterSpan.style.marginTop = '4px';
+
+  btn.appendChild(textWithArrow);
+  btn.appendChild(chapterSpan);
+
+  return btn;
+}
+
+
+
+  const prevBtn = createButton(`chapter${prevChapter}.html`, '←', 'Anterior', prevChapter, true);
+  const nextBtn = createButton(`chapter${nextChapter}.html`, '→', 'Siguiente', nextChapter, false);
+
+  navDiv.appendChild(prevBtn);
+  navDiv.appendChild(nextBtn);
+
   container.appendChild(navDiv);
 }
 
-// Crear botones después de cargar todo
 window.addEventListener('load', () => {
   createChapterNavigation();
 });
+
