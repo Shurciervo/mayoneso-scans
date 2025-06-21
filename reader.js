@@ -42,7 +42,6 @@ function loadVideos(folder, count, cssClass) {
   setupVideoAutoplay();
 }
 
-
 function setupVideoAutoplay() {
   const videos = document.querySelectorAll('.info-video');
 
@@ -73,8 +72,7 @@ function setupVideoAutoplay() {
   videos.forEach(video => observer.observe(video));
 }
 
-
-// Cargar imágenes
+// Cargar imágenes y videos
 loadImages(fanartFolder, totalFanarts, 'fanart-img');
 loadImages(chapterFolder, totalPages, 'chapter-img');
 loadImages(infoFolder, totalInfo, 'info-img');
@@ -148,4 +146,54 @@ window.addEventListener('scroll', () => {
       break;
     }
   }
+});
+
+// ——— NUEVO: Función para crear botones Anterior / Siguiente ———
+function createChapterNavigation() {
+  // Extraer número del capítulo del data-chapter: "chapter1130" -> 1130
+  const chapterStr = chapterFolder; // ej: "chapter1130"
+  const chapterNum = parseInt(chapterStr.replace('chapter', ''), 10);
+
+  if (isNaN(chapterNum)) return; // no es un número válido, no crear botones
+
+  const prevChapter = chapterNum - 1;
+  const nextChapter = chapterNum + 1;
+
+  // Crear contenedor
+  const navDiv = document.createElement('div');
+  navDiv.id = 'chapter-navigation';
+  navDiv.style.textAlign = 'center';
+  navDiv.style.margin = '30px 0';
+
+  // Crear botón anterior
+  const prevLink = document.createElement('a');
+  prevLink.href = `chapter${prevChapter}.html`;
+  prevLink.textContent = '← Anterior';
+  prevLink.style.marginRight = '20px';
+  prevLink.style.padding = '10px 20px';
+  prevLink.style.backgroundColor = '#222';
+  prevLink.style.color = 'white';
+  prevLink.style.textDecoration = 'none';
+  prevLink.style.borderRadius = '5px';
+
+  // Crear botón siguiente
+  const nextLink = document.createElement('a');
+  nextLink.href = `chapter${nextChapter}.html`;
+  nextLink.textContent = 'Siguiente →';
+  nextLink.style.padding = '10px 20px';
+  nextLink.style.backgroundColor = '#222';
+  nextLink.style.color = 'white';
+  nextLink.style.textDecoration = 'none';
+  nextLink.style.borderRadius = '5px';
+
+  navDiv.appendChild(prevLink);
+  navDiv.appendChild(nextLink);
+
+  // Insertar al final del contenedor manga
+  container.appendChild(navDiv);
+}
+
+// Crear botones después de cargar todo
+window.addEventListener('load', () => {
+  createChapterNavigation();
 });
