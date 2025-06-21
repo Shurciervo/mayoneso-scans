@@ -83,7 +83,7 @@ let extraMusicStarted = false;
 // ——— NUEVAS FUNCIONES DE FADE ———
 let isFading = false;
 
-function fadeOut(audio, duration = 2000) {
+function fadeOut(audio, duration = 1500) {
   return new Promise(resolve => {
     const stepTime = 50;
     const steps = duration / stepTime;
@@ -101,7 +101,7 @@ function fadeOut(audio, duration = 2000) {
   });
 }
 
-function fadeIn(audio, targetVolume = 0.1, duration = 2000) {
+function fadeIn(audio, targetVolume = 0.1, duration = 1500) {
   return new Promise(resolve => {
     const stepTime = 50;
     const steps = duration / stepTime;
@@ -127,7 +127,7 @@ async function changeTrackWithFade(newTrack) {
   isFading = true;
 
   if (!audio.paused) {
-    await fadeOut(audio, 2000);
+    await fadeOut(audio, 1500);
   }
 
   audio.src = newTrack;
@@ -136,7 +136,7 @@ async function changeTrackWithFade(newTrack) {
     newTrack.includes('title.mp3') || newTrack.includes('tobecontinued.mp3')
   );
 
-  await fadeIn(audio, 0.1, 2000);
+  await fadeIn(audio, 0.1, 1500);
 
   isFading = false;
 }
