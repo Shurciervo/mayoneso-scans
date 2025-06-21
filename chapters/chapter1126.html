@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>🐀 AudioManga Mayoneso - 1135</title>
+  <title>🐀 AudioManga Mayoneso - 1126</title>
   <style>
     body {
       margin: 0;
@@ -46,20 +46,24 @@
 
 <!-- 👇 AQUÍ VA LA MODIFICACIÓN -->
 <body 
-  data-chapter="chapter1135"
-  data-fanart-folder="fanart1135"
-  data-info-folder="info1135"
+  data-chapter="../images/chapter1126"
+  data-fanart-folder="../images/fanart1126"
+  data-info-folder="../images/info1126"
   data-total-fanart="0"
-  data-total-pages="13"
-  data-total-info="0"
-  data-total-videos="0"
+  data-total-pages="15"
+  data-total-info="5"
   data-tracks='[
-    {"track": "music/title.mp3", "startAt": 0},
-    {"track": "music/party.mp3", "startAt": 0.5}
+    {"track": "../music/title.mp3", "startAt": 0},
+    {"track": "../music/party.mp3", "startAt": 1},
+    {"track": "../music/trouble.mp3", "startAt": 3},
+    {"track": "../music/epic_sad.mp3", "startAt": 5},
+    {"track": "../music/tension.mp3", "startAt": 6.5},
+    {"track": "../music/kurohige.mp3", "startAt": 8},
+    {"track": "../music/worry.mp3", "startAt": 13}
   ]'>
 
   <!-- Botón para volver al inicio -->
-  <a href="index.html" id="backButton">← Volver</a>
+  <a href="../index.html" id="backButton">← Volver</a>
 
   <!-- Reproductor de música oculto -->
   <audio id="music" autoplay></audio>
@@ -68,7 +72,7 @@
   <div class="page" id="mangaContainer"></div>
 
   <!-- Script que gestiona imágenes y música -->
-  <script src="reader.js"></script>
+  <script src="../reader.js"></script>
 
 </body>
 </html>
