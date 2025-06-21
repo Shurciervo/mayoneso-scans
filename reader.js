@@ -80,6 +80,68 @@ loadVideos(infoFolder, totalVideos, 'info-video');
 
 let extraMusicStarted = false;
 
+// ——— NUEVAS FUNCIONES DE FADE ———
+let isFading = false;
+
+function fadeOut(audio, duration = 2000) {
+  return new Promise(resolve => {
+    const stepTime = 50;
+    const steps = duration / stepTime;
+    const volumeStep = audio.volume / steps;
+
+    const fade = setInterval(() => {
+      if (audio.volume - volumeStep > 0) {
+        audio.volume = Math.max(0, audio.volume - volumeStep);
+      } else {
+        audio.volume = 0;
+        clearInterval(fade);
+        resolve();
+      }
+    }, stepTime);
+  });
+}
+
+function fadeIn(audio, targetVolume = 0.1, duration = 2000) {
+  return new Promise(resolve => {
+    const stepTime = 50;
+    const steps = duration / stepTime;
+    const volumeStep = targetVolume / steps;
+
+    audio.volume = 0;
+    audio.play();
+
+    const fade = setInterval(() => {
+      if (audio.volume + volumeStep < targetVolume) {
+        audio.volume = Math.min(targetVolume, audio.volume + volumeStep);
+      } else {
+        audio.volume = targetVolume;
+        clearInterval(fade);
+        resolve();
+      }
+    }, stepTime);
+  });
+}
+
+async function changeTrackWithFade(newTrack) {
+  if (isFading) return;
+  isFading = true;
+
+  if (!audio.paused) {
+    await fadeOut(audio, 2000);
+  }
+
+  audio.src = newTrack;
+  audio.currentTime = 0;
+  audio.loop = !(
+    newTrack.includes('title.mp3') || newTrack.includes('tobecontinued.mp3')
+  );
+
+  await fadeIn(audio, 0.1, 2000);
+
+  isFading = false;
+}
+
+// EVENTO SCROLL para manejar música y extras
 window.addEventListener('scroll', () => {
   const scrollY = window.scrollY;
   const windowHeight = window.innerHeight;
@@ -126,21 +188,7 @@ window.addEventListener('scroll', () => {
       const currentTrack = musicTracks[i].track;
 
       if (!audio.src.includes(currentTrack)) {
-        audio.pause();
-        audio.currentTime = 0;
-        audio.src = currentTrack;
-        audio.volume = 0.1;
-
-        if (
-          currentTrack.includes('title.mp3') ||
-          currentTrack.includes('tobecontinued.mp3')
-        ) {
-          audio.loop = false;
-        } else {
-          audio.loop = true;
-        }
-
-        audio.play();
+        changeTrackWithFade(currentTrack);
       }
 
       break;
@@ -149,85 +197,83 @@ window.addEventListener('scroll', () => {
 });
 
 // ——— NUEVO: Función para crear botones Anterior / Siguiente más bonitos ———
-  function createChapterNavigation() {
-    const chapterStr = chapterFolder; // ej: "chapter1130"
-    const chapterNum = parseInt(chapterStr.replace('chapter', ''), 10);
-    if (isNaN(chapterNum)) return;
+function createChapterNavigation() {
+  const chapterStr = chapterFolder; // ej: "chapter1130"
+  const chapterNum = parseInt(chapterStr.replace('chapter', ''), 10);
+  if (isNaN(chapterNum)) return;
 
-    const prevChapter = chapterNum - 1;
-    const nextChapter = chapterNum + 1;
+  const prevChapter = chapterNum - 1;
+  const nextChapter = chapterNum + 1;
 
-    const navDiv = document.createElement('div');
-    navDiv.id = 'chapter-navigation';
-    navDiv.style.display = 'flex';
-    navDiv.style.justifyContent = 'center';
-    navDiv.style.gap = '40px';
-    navDiv.style.margin = '30px 0';
-    navDiv.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+  const navDiv = document.createElement('div');
+  navDiv.id = 'chapter-navigation';
+  navDiv.style.display = 'flex';
+  navDiv.style.justifyContent = 'center';
+  navDiv.style.gap = '40px';
+  navDiv.style.margin = '30px 0';
+  navDiv.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
 
-    function createButton(href, arrow, label, chapterNumber, isPrev) {
-  const btn = document.createElement('a');
-  btn.href = href;
-  btn.style.textDecoration = 'none';
-  btn.style.color = '#f0f0f0';
-  btn.style.display = 'flex';
-  btn.style.flexDirection = 'column';
-  btn.style.alignItems = 'center';
-  btn.style.padding = '12px 24px';
-  btn.style.backgroundColor = '#1e1e1e';
-  btn.style.borderRadius = '10px';
-  btn.style.boxShadow = '0 2px 6px rgba(0,0,0,0.5)';
-  btn.style.transition = 'background-color 0.3s, color 0.3s';
-  btn.style.width = '90px';
-  btn.style.cursor = 'pointer';
-
-  btn.addEventListener('mouseenter', () => {
-    btn.style.backgroundColor = '#333';
-    btn.style.color = '#fff';
-  });
-  btn.addEventListener('mouseleave', () => {
-    btn.style.backgroundColor = '#1e1e1e';
+  function createButton(href, arrow, label, chapterNumber, isPrev) {
+    const btn = document.createElement('a');
+    btn.href = href;
+    btn.style.textDecoration = 'none';
     btn.style.color = '#f0f0f0';
-  });
+    btn.style.display = 'flex';
+    btn.style.flexDirection = 'column';
+    btn.style.alignItems = 'center';
+    btn.style.padding = '12px 24px';
+    btn.style.backgroundColor = '#1e1e1e';
+    btn.style.borderRadius = '10px';
+    btn.style.boxShadow = '0 2px 6px rgba(0,0,0,0.5)';
+    btn.style.transition = 'background-color 0.3s, color 0.3s';
+    btn.style.width = '90px';
+    btn.style.cursor = 'pointer';
 
-  // Contenedor horizontal para flecha + texto
-  const textWithArrow = document.createElement('div');
-  textWithArrow.style.display = 'flex';
-  textWithArrow.style.alignItems = 'center';
-  textWithArrow.style.gap = '6px'; // espacio entre flecha y texto
-  textWithArrow.style.fontWeight = '600';
-  textWithArrow.style.fontSize = '16px';
+    btn.addEventListener('mouseenter', () => {
+      btn.style.backgroundColor = '#333';
+      btn.style.color = '#fff';
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.backgroundColor = '#1e1e1e';
+      btn.style.color = '#f0f0f0';
+    });
 
-  const arrowSpan = document.createElement('span');
-  arrowSpan.textContent = arrow;
-  arrowSpan.style.fontSize = '24px';
-  arrowSpan.style.fontWeight = '700';
+    // Contenedor horizontal para flecha + texto
+    const textWithArrow = document.createElement('div');
+    textWithArrow.style.display = 'flex';
+    textWithArrow.style.alignItems = 'center';
+    textWithArrow.style.gap = '6px'; // espacio entre flecha y texto
+    textWithArrow.style.fontWeight = '600';
+    textWithArrow.style.fontSize = '16px';
 
-  const labelSpan = document.createElement('span');
-  labelSpan.textContent = label;
+    const arrowSpan = document.createElement('span');
+    arrowSpan.textContent = arrow;
+    arrowSpan.style.fontSize = '24px';
+    arrowSpan.style.fontWeight = '700';
 
-  // Orden según si es previo o siguiente
-  if (isPrev) {
-    textWithArrow.appendChild(arrowSpan);
-    textWithArrow.appendChild(labelSpan);
-  } else {
-    textWithArrow.appendChild(labelSpan);
-    textWithArrow.appendChild(arrowSpan);
+    const labelSpan = document.createElement('span');
+    labelSpan.textContent = label;
+
+    // Orden según si es previo o siguiente
+    if (isPrev) {
+      textWithArrow.appendChild(arrowSpan);
+      textWithArrow.appendChild(labelSpan);
+    } else {
+      textWithArrow.appendChild(labelSpan);
+      textWithArrow.appendChild(arrowSpan);
+    }
+
+    const chapterSpan = document.createElement('span');
+    chapterSpan.textContent = `Capítulo ${chapterNumber}`;
+    chapterSpan.style.fontSize = '12px';
+    chapterSpan.style.color = '#aaa';
+    chapterSpan.style.marginTop = '4px';
+
+    btn.appendChild(textWithArrow);
+    btn.appendChild(chapterSpan);
+
+    return btn;
   }
-
-  const chapterSpan = document.createElement('span');
-  chapterSpan.textContent = `Capítulo ${chapterNumber}`;
-  chapterSpan.style.fontSize = '12px';
-  chapterSpan.style.color = '#aaa';
-  chapterSpan.style.marginTop = '4px';
-
-  btn.appendChild(textWithArrow);
-  btn.appendChild(chapterSpan);
-
-  return btn;
-}
-
-
 
   const prevBtn = createButton(`chapter${prevChapter}.html`, '←', 'Anterior', prevChapter, true);
   const nextBtn = createButton(`chapter${nextChapter}.html`, '→', 'Siguiente', nextChapter, false);
@@ -241,4 +287,3 @@ window.addEventListener('scroll', () => {
 window.addEventListener('load', () => {
   createChapterNavigation();
 });
-
