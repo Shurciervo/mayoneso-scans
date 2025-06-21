@@ -82,6 +82,7 @@ let extraMusicStarted = false;
 
 // ——— NUEVAS FUNCIONES DE FADE ———
 let isFading = false;
+let currentTrackPlaying = ''; // Track actualmente sonando
 
 function fadeOut(audio, duration = 1500) {
   return new Promise(resolve => {
@@ -123,7 +124,7 @@ function fadeIn(audio, targetVolume = 0.1, duration = 1500) {
 }
 
 async function changeTrackWithFade(newTrack) {
-  if (isFading) return;
+  if (isFading || currentTrackPlaying === newTrack) return; // Evita repetir fades
   isFading = true;
 
   if (!audio.paused) {
@@ -137,6 +138,8 @@ async function changeTrackWithFade(newTrack) {
   );
 
   await fadeIn(audio, 0.1, 1500);
+
+  currentTrackPlaying = newTrack; // guardamos el track actual
 
   isFading = false;
 }
@@ -153,7 +156,7 @@ window.addEventListener('scroll', () => {
       audio.pause();
       audio.currentTime = 0;
 
-      audio.src = 'music/tobecontinued.mp3';
+      audio.src = '../music/tobecontinued.mp3';
       audio.volume = 0.1;
       audio.loop = false;
       audio.play();
@@ -187,7 +190,7 @@ window.addEventListener('scroll', () => {
     if (triggerPoint < scrollY + windowHeight / 2) {
       const currentTrack = musicTracks[i].track;
 
-      if (!audio.src.includes(currentTrack)) {
+      if (currentTrackPlaying !== currentTrack) {
         changeTrackWithFade(currentTrack);
       }
 
@@ -199,7 +202,7 @@ window.addEventListener('scroll', () => {
 // ——— NUEVO: Función para crear botones Anterior / Siguiente más bonitos ———
 function createChapterNavigation() {
   const chapterStr = chapterFolder; // ej: "chapter1130"
-  const chapterNum = parseInt(chapterStr.replace('chapter', ''), 10);
+  const chapterNum = parseInt(chapterStr.replace('../images/chapter', ''), 10);
   if (isNaN(chapterNum)) return;
 
   const prevChapter = chapterNum - 1;
@@ -275,8 +278,8 @@ function createChapterNavigation() {
     return btn;
   }
 
-  const prevBtn = createButton(`chapter${prevChapter}.html`, '←', 'Anterior', prevChapter, true);
-  const nextBtn = createButton(`chapter${nextChapter}.html`, '→', 'Siguiente', nextChapter, false);
+  const prevBtn = createButton(`../chapters/chapter${prevChapter}.html`, '←', 'Anterior', prevChapter, true);
+  const nextBtn = createButton(`../chapters/chapter${nextChapter}.html`, '→', 'Siguiente', nextChapter, false);
 
   navDiv.appendChild(prevBtn);
   navDiv.appendChild(nextBtn);
@@ -286,4 +289,7 @@ function createChapterNavigation() {
 
 window.addEventListener('load', () => {
   createChapterNavigation();
+  if (musicTracks.length > 0) {
+    changeTrackWithFade(musicTracks[0].track);
+  }
 });
