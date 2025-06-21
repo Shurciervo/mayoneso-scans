@@ -6,6 +6,7 @@ const infoFolder = body.getAttribute('data-info-folder');
 const totalFanarts = parseInt(body.getAttribute('data-total-fanart'));
 const totalPages = parseInt(body.getAttribute('data-total-pages'));
 const totalInfo = parseInt(body.getAttribute('data-total-info'));
+const totalVideos = parseInt(body.getAttribute('data-total-videos'));
 
 const musicTracks = JSON.parse(body.getAttribute('data-tracks'));
 
@@ -22,58 +23,119 @@ function loadImages(folder, count, cssClass) {
   }
 }
 
-// Primero fanarts
+function loadVideos(folder, count, cssClass) {
+  for (let i = 1; i <= count; i++) {
+    const video = document.createElement('video');
+    const vidNum = String(i).padStart(3, '0');
+    video.src = `${folder}/${vidNum}.mp4`;
+    video.className = `manga-video ${cssClass}`;
+    video.controls = true;
+    video.style.margin = '20px 0';
+    video.style.maxWidth = '100%';
+    video.style.display = 'block';
+    video.muted = true; // Necesario para autoplay en algunos navegadores
+
+    container.appendChild(video);
+  }
+
+  // 👇 Esto activa el autoplay por scroll
+  setupVideoAutoplay();
+}
+
+
+function setupVideoAutoplay() {
+  const videos = document.querySelectorAll('.info-video');
+
+  videos.forEach(video => {
+    video.muted = false;      // sin mute
+    video.volume = 1.0;       // volumen máximo
+    video.playsInline = true; // para móviles
+    video.autoplay = true;
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const video = entry.target;
+      if (entry.isIntersecting) {
+        video.play().catch(() => {
+          // Si autoplay falla (por políticas del navegador), muteamos y reproducimos:
+          video.muted = true;
+          video.play();
+        });
+      } else {
+        video.pause();
+      }
+    });
+  }, {
+    threshold: 0.5
+  });
+
+  videos.forEach(video => observer.observe(video));
+}
+
+
+// Cargar imágenes
 loadImages(fanartFolder, totalFanarts, 'fanart-img');
-
-// Luego páginas del capítulo
 loadImages(chapterFolder, totalPages, 'chapter-img');
-
-// Finalmente info extra del capítulo
 loadImages(infoFolder, totalInfo, 'info-img');
+loadVideos(infoFolder, totalVideos, 'info-video');
 
-let audioStarted = false;
 let extraMusicStarted = false;
 
 window.addEventListener('scroll', () => {
   const scrollY = window.scrollY;
   const windowHeight = window.innerHeight;
 
-  // 🎯 Detectar si ya entró en los extras
+  // Detectar si entró en los extras
   if (!extraMusicStarted) {
     const firstInfoImg = document.querySelector('.info-img');
     if (firstInfoImg && firstInfoImg.offsetTop < scrollY + windowHeight / 2) {
-      // Parar música actual
       audio.pause();
       audio.currentTime = 0;
 
-      // Reproducir música final
       audio.src = 'music/tobecontinued.mp3';
       audio.volume = 0.1;
       audio.loop = false;
       audio.play();
 
       extraMusicStarted = true;
-      return; // ⛔ No seguir con la lógica de música de capítulo
+      return;
     }
   }
 
-  // Si ya empezó la música final, no activar nada más
   if (extraMusicStarted) return;
 
-  // 🎼 Música de páginas del capítulo
+  // Lógica para reproducir música según página
   const imgs = document.querySelectorAll('.chapter-img');
 
   for (let i = musicTracks.length - 1; i >= 0; i--) {
-    const triggerImg = imgs[musicTracks[i].startAt];
-    if (triggerImg && triggerImg.offsetTop < scrollY + windowHeight / 2) {
-      if (!audio.src.includes(musicTracks[i].track)) {
-        audio.src = musicTracks[i].track;
+    const startAt = musicTracks[i].startAt;
+    const lowerIndex = Math.floor(startAt);
+    const upperIndex = Math.ceil(startAt);
+
+    const lowerImg = imgs[lowerIndex];
+    const upperImg = imgs[upperIndex];
+
+    if (!lowerImg || !upperImg) continue;
+
+    const lowerTop = lowerImg.offsetTop;
+    const upperTop = upperImg.offsetTop;
+    const ratio = startAt - lowerIndex;
+
+    const triggerPoint = lowerTop + (upperTop - lowerTop) * ratio;
+
+    if (triggerPoint < scrollY + windowHeight / 2) {
+      const currentTrack = musicTracks[i].track;
+
+      if (!audio.src.includes(currentTrack)) {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.src = currentTrack;
         audio.volume = 0.1;
 
-        // No hacer loop si es una de estas
         if (
-          musicTracks[i].track.includes('title.mp3') ||
-          musicTracks[i].track.includes('tobecontinued.mp3')
+          currentTrack.includes('title.mp3') ||
+          currentTrack.includes('tobecontinued.mp3')
         ) {
           audio.loop = false;
         } else {
@@ -82,6 +144,7 @@ window.addEventListener('scroll', () => {
 
         audio.play();
       }
+
       break;
     }
   }
